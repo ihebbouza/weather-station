@@ -12,8 +12,8 @@
 
 Adafruit_BMP280 bmp;
 
-const char* ssid = "SWL1";
-const char* password =  "MImyTmG1";
+const char* ssid = "your-wifi-name";
+const char* password =  "your-wifi-password";
 
 const int ledPin = 2;
 String ledState;
