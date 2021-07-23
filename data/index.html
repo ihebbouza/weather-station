@@ -2,18 +2,227 @@
 <html lang="en">
 
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
+  <script src="https://code.highcharts.com/highcharts.js"></script> <!--for the charts-->
   <link rel="stylesheet" href="styles.css">
+  <title>Sensor Readings</title>
 </head>
 
 <body>
-  <div class="container">
-    <div class="box">
-      <a href="sensor-readings.html">Readings</a>
-    </div>
-    <div class="box">
-      <a href="sensor-charts.html">Charts</a>
+  <div class="table-container">
+    <h1>Sensor readings</h1>
+    <table class="readings-table">
+      <thead>
+        <tr>
+          <th>Sensor</th>
+          <th>Weather variables</th>
+          <th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>BMP280</td>
+          <td>Temperature</td>
+          <td id="temperature">%TEMPERATURE%<sup class="units">&deg;C</sup></td>
+        </tr>
+        <tr>
+          <td>BMP280</td>
+          <td>Pressure</td>
+          <td id="pressure">%PRESSURE%<sup class="units">Pa</sup></td>
+        </tr>
+        <tr>
+          <td>BMP280</td>
+          <td>Altitude</td>
+          <td id="altitude">%ALTITUDE%<sup class="units">m</sup></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="charts-container">
+    <h1>Charts</h1>
+    <div class="charts">
+      <div id="chart-temperature" class="container"></div>
+      <div id="chart-pressure" class="container"></div>
+      <div id="chart-altitude" class="container"></div>
     </div>
   </div>
+ 
 </body>
 
+<script>
+  /*----------Temperature---------------*/
+  var chartT = new Highcharts.Chart({
+    chart: {
+      renderTo: 'chart-temperature'
+    },
+    title: {
+      text: 'BMP280 Temperature'
+    },
+    series: [{
+      showInLegend: false,
+      data: []
+    }],
+    plotOptions: {
+      line: {
+        animation: false,
+        dataLabels: {
+          enabled: true
+        }
+      },
+      series: {
+        color: '#059e8a'
+      }
+    },
+    xAxis: {
+      type: 'datetime',
+      dateTimeLabelFormats: {
+        second: '%H:%M:%S'
+      }
+    },
+    yAxis: {
+      title: {
+        text: 'Temperature (Celsius)'
+      }
+      //title: { text: 'Temperature (Fahrenheit)' }
+    },
+    credits: {
+      enabled: false
+    }
+  });
+setInterval(function () {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+      if (this.readyState == 4 && this.status == 200) {
+        document.getElementById("temperature").innerHTML = this.responseText;
+        var x = (new Date()).getTime(),
+          y = parseFloat(this.responseText);
+        //console.log(this.responseText);
+        if (chartT.series[0].data.length > 40) {
+          chartT.series[0].addPoint([x, y], true, true, true);
+        } else {
+          chartT.series[0].addPoint([x, y], true, false, true);
+        }
+      }
+    };
+    xhttp.open("GET", "/temperature", true);
+    xhttp.send();
+  }, 5000);
+
+ /*----------Pressure---------------*/
+ var chartP = new Highcharts.Chart({
+    chart: {
+      renderTo: 'chart-pressure'
+    },
+    title: {
+      text: 'BMP280 Pressure'
+    },
+    series: [{
+      showInLegend: false,
+      data: []
+    }],
+    plotOptions: {
+      line: {
+        animation: false,
+        dataLabels: {
+          enabled: true
+        }
+      }
+    },
+    xAxis: {
+      type: 'datetime',
+      dateTimeLabelFormats: {
+        second: '%H:%M:%S'
+      }
+    },
+    yAxis: {
+      title: {
+        text: 'Presssure (Pa)'
+      }
+    },
+    credits: {
+      enabled: false
+    }
+  });
+  setInterval(function () {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+      if (this.readyState == 4 && this.status == 200) {
+        document.getElementById("pressure").innerHTML = this.responseText;
+        var x = (new Date()).getTime(),
+          y = parseFloat(this.responseText);
+        //console.log(this.responseText);
+        if (chartP.series[0].data.length > 40) {
+          chartP.series[0].addPoint([x, y], true, true, true);
+        } else {
+          chartP.series[0].addPoint([x, y], true, false, true);
+        }
+      }
+    };
+    xhttp.open("GET", "/pressure", true);
+    xhttp.send();
+  }, 5000);
+
+/*----------Altitude---------------*/
+var chartA = new Highcharts.Chart({
+    chart: {
+      renderTo: 'chart-altitude'
+    },
+    title: {
+      text: 'BMP280 Altitude'
+    },
+    series: [{
+      showInLegend: false,
+      data: []
+    }],
+    plotOptions: {
+      line: {
+        animation: false,
+        dataLabels: {
+          enabled: true
+        }
+      },
+      series: {
+        color: '#18009c'
+      }
+    },
+    xAxis: {
+      type: 'datetime',
+      dateTimeLabelFormats: {
+        second: '%H:%M:%S'
+      }
+    },
+    yAxis: {
+      title: {
+        text: 'Altitude (m)'
+      }
+    },
+    credits: {
+      enabled: false
+    }
+  });
+  setInterval(function () {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+      if (this.readyState == 4 && this.status == 200) {
+        document.getElementById("altitude").innerHTML = this.responseText;
+        var x = (new Date()).getTime(),
+          y = parseFloat(this.responseText);
+        //console.log(this.responseText);
+        if (chartA.series[0].data.length > 40) {
+          chartA.series[0].addPoint([x, y], true, true, true);
+        } else {
+          chartA.series[0].addPoint([x, y], true, false, true);
+        }
+      }
+
+    };
+    xhttp.open("GET", "/altitude", true);
+    xhttp.send();
+  }, 5000);
+</script>
+</html>

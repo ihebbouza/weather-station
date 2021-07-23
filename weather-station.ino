@@ -15,9 +15,6 @@ Adafruit_BMP280 bmp;
 const char* ssid = "SWL1";
 const char* password =  "MImyTmG1";
 
-const int ledPin = 2;
-String ledState;
-
 AsyncWebServer server(80); //async web server
 
 void connect_to_wifi() {
@@ -45,7 +42,9 @@ void check_bmp280() {
     Serial.println(F("Could not find a valid BMP280 sensor, check wiring or "
                      "try a different address!"));
     while (1) delay(10);
-  }
+  } else {
+    Serial.println("BMP test: OK");
+    }
 
   /* Default settings from datasheet. */
   bmp.setSampling(Adafruit_BMP280::MODE_NORMAL,     /* Operating Mode. */
@@ -70,7 +69,6 @@ float get_altitude() {
 
 
 
-
 void setup() {
   Serial.begin(115200);
   initialize_SPIFFS();
@@ -78,7 +76,11 @@ void setup() {
   connect_to_wifi();
   
   server.on("/", HTTP_GET, [](AsyncWebServerRequest * request) {
-    request->send(SPIFFS, "/sensor-readings.html");
+    request->send(SPIFFS, "/index.html");
+  });
+
+  server.on("/styles.css", HTTP_GET, [](AsyncWebServerRequest * request) {
+    request->send(SPIFFS, "/styles.css", "text/css");
   });
   
   //sending plain text to the server
@@ -101,8 +103,7 @@ void setup() {
 
 void loop() {
   float temperature, pressure, altitude;
-  Serial.println(WiFi.localIP()); //where to go to access the project
-
+  
   temperature = get_temperature();
   Serial.print("temperature: ");
   Serial.print(temperature);
@@ -119,5 +120,5 @@ void loop() {
   Serial.println(" m");
   
   Serial.println();
-  delay(4000);
+  delay(5000);
 }
